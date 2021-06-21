@@ -116,7 +116,7 @@ class QuizFragment : Fragment() {
 
             val usAns = currQuestion.userAnswer -1
             if (usAns != -2) {
-                options[currQuestion.userAnswer].isChecked = true
+                options[usAns].isChecked = true
 
                 btnNext.isEnabled = true
             } else {
