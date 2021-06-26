@@ -1,7 +1,15 @@
 <resources>
     <string name="app_name">Quiz</string>
-    <string name="result">Your result: %1$d/%2$d</string>
-    <string name="share">share</string>
-    <string name="back">back</string>
-    <string name="close">close</string>
+    <string name="your_result">Ваш результат: %1$d/%2$d</string>
+    <string name="question_title">Вопрос %1$d</string>
+    <string name="my_result">Мой результат: %1$d/%2$d</string>
+    <string name="question">Созвездие %1$s - это:</string>
+    <string name="share">поделиться</string>
+    <string name="back">назад</string>
+    <string name="close">закрыть</string>
+    <string name="result_share_title">Мой результат в квизе!</string>
+    <string name="submit">Подтвердить</string>
+    <string name="next">Вперед</string>
+    <string name="previous">Назад</string>
+    <string name="share_res">Вопрос %1$d: %2$s\nМой ответ: %3$s</string>
 </resources>

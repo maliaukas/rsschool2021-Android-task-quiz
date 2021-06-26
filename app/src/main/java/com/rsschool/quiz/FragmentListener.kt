@@ -1,9 +1,11 @@
 package com.rsschool.quiz
 
 interface FragmentListener {
-    fun openQuizFragment()
+    fun openQuizFragment(currQuestionIdx: Int)
     fun openFinishFragment(numQuestions: Int, numCorrect: Int, answers: Array<String>)
-    fun finish()
 
-    fun updateTheme(idx: Int)
+    fun nextQuestion()
+    fun prevQuestion()
+
+    fun finish()
 }

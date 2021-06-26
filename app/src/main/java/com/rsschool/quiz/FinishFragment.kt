@@ -11,7 +11,13 @@ import com.rsschool.quiz.databinding.FragmentFinishBinding
 
 class FinishFragment : Fragment() {
 
-    private lateinit var binding: FragmentFinishBinding
+    private var _binding: FragmentFinishBinding? = null
+
+    private val binding: FragmentFinishBinding
+        get() {
+            return _binding as FragmentFinishBinding
+        }
+
     private lateinit var fragmentListener: FragmentListener
 
     override fun onAttach(context: Context) {
@@ -21,24 +27,31 @@ class FinishFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentFinishBinding.inflate(inflater)
+    ): View {
+        _binding = FragmentFinishBinding.inflate(inflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val numQuestions = arguments?.get(NUM_QUESTIONS_KEY)
         val numCorrect = arguments?.get(NUM_CORRECT_KEY)
-        val answers = arguments?.get(ANSWERS_KEY) as Array<String>
+        val answers = arguments?.get(ANSWERS_KEY) as Array<*>
+
         with(binding) {
             tvResult.text = String.format(
-                getString(R.string.result),
+                getString(R.string.your_result),
                 numCorrect, numQuestions
             )
 
@@ -50,14 +63,19 @@ class FinishFragment : Fragment() {
                 val intent = Intent(Intent.ACTION_SEND)
                 with(intent) {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, answers.joinToString("***\n"))
-                    putExtra(Intent.EXTRA_TITLE, "My result in quiz!")
+                    putExtra(
+                        Intent.EXTRA_TEXT, String.format(
+                            getString(R.string.my_result),
+                            numCorrect, numQuestions
+                        ) + "\n\n" + answers.joinToString("\n***\n")
+                    )
+                    putExtra(Intent.EXTRA_TITLE, getString(R.string.result_share_title))
                 }
-                startActivity(Intent.createChooser(intent, "My result in quiz!"));
+                startActivity(Intent.createChooser(intent, getString(R.string.result_share_title)))
             }
 
             btnBack.setOnClickListener {
-                fragmentListener.openQuizFragment()
+                fragmentListener.openQuizFragment(0)
             }
         }
     }
