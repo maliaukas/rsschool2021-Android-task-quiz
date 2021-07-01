@@ -3,6 +3,9 @@ package com.rsschool.quiz
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.rsschool.quiz.databinding.ActivityMainBinding
+import com.rsschool.quiz.quiz.Questions
+import com.rsschool.quiz.quiz.QuizFragment
+import com.rsschool.quiz.result.ResultFragment
 
 class MainActivity : AppCompatActivity(), FragmentListener {
 
@@ -21,15 +24,17 @@ class MainActivity : AppCompatActivity(), FragmentListener {
 
     override fun openQuizFragment(currQuestionIdx: Int) {
         // clear previous answers
-        if (currQuestionIdx == 0) {
+        if (currQuestionIdx == -1) {
             Questions.questions.forEach {
                 it.userAnswer = -1
             }
             this.currQuestionIdx = 0
             updateTheme(0)
+        } else {
+            this.currQuestionIdx = currQuestionIdx
         }
 
-        val quizFragment = QuizFragment.newInstance(currQuestionIdx)
+        val quizFragment = QuizFragment.newInstance(this.currQuestionIdx)
 
         supportFragmentManager
             .beginTransaction()
@@ -42,7 +47,7 @@ class MainActivity : AppCompatActivity(), FragmentListener {
         numCorrect: Int,
         answers: Array<String>
     ) {
-        val quizFragment = FinishFragment.newInstance(numQuestions, numCorrect, answers)
+        val quizFragment = ResultFragment.newInstance(numQuestions, numCorrect, answers)
 
         supportFragmentManager
             .beginTransaction()

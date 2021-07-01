@@ -1,4 +1,4 @@
-package com.rsschool.quiz
+package com.rsschool.quiz.quiz
 
 import android.content.Context
 import android.os.Bundle
@@ -6,26 +6,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import com.rsschool.quiz.FragmentListener
+import com.rsschool.quiz.R
 import com.rsschool.quiz.databinding.FragmentQuizBinding
 
-class QuizFragment(private var currQuestionIdx: Int) : Fragment() {
+class QuizFragment : Fragment() {
+
     private var _binding: FragmentQuizBinding? = null
-
     private val binding: FragmentQuizBinding
-        get() {
-            return _binding as FragmentQuizBinding
-        }
+        get() = requireNotNull(_binding)
 
+    private var _fragmentListener: FragmentListener? = null
+    private val fragmentListener: FragmentListener
+        get() = requireNotNull(_fragmentListener)
+
+    private var currQuestionIdx: Int = -1
     private val numQuestions = Questions.questions.size
-
-    private lateinit var fragmentListener: FragmentListener
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is FragmentListener) {
-            fragmentListener = context
+            _fragmentListener = context
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        _fragmentListener = null
     }
 
     override fun onDestroyView() {
@@ -42,17 +51,27 @@ class QuizFragment(private var currQuestionIdx: Int) : Fragment() {
         return binding.root
     }
 
-    private fun btnNextHandler(v: View) {
+    private fun btnNextPrevHandler(v: View) {
         with(binding) {
             // get the index of the selected answer
             val checkedId = radioGroup.checkedRadioButtonId
-            val checkedButton = radioGroup.findViewById(checkedId) as RadioButton
-            val checked = radioGroup.indexOfChild(checkedButton)
 
-            // remember the user answer's index
-            Questions.questions[currQuestionIdx].userAnswer = checked + 1
+            // in case something is selected
+            if (checkedId != -1) {
+                val checkedButton = radioGroup.findViewById(checkedId) as RadioButton
+                val checked = radioGroup.indexOfChild(checkedButton)
 
-            fragmentListener.nextQuestion()
+                // remember the user answer's index
+                Questions.questions[currQuestionIdx].userAnswer = checked + 1
+            }
+
+            when (v.id) {
+                R.id.btnNext -> fragmentListener.nextQuestion()
+                R.id.btnPrevious -> fragmentListener.prevQuestion()
+                // for toolbar back button
+                else -> fragmentListener.prevQuestion()
+            }
+
         }
     }
 
@@ -73,13 +92,15 @@ class QuizFragment(private var currQuestionIdx: Int) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        currQuestionIdx = arguments?.get(CURR_QUESTION_IDX_KEY) as Int
+
         initOptions()
         updateQuestion()
 
         with(binding) {
-            btnNext.setOnClickListener(::btnNextHandler)
-            btnPrevious.setOnClickListener { fragmentListener.prevQuestion() }
-            toolbar.setNavigationOnClickListener { fragmentListener.prevQuestion() }
+            btnNext.setOnClickListener(::btnNextPrevHandler)
+            btnPrevious.setOnClickListener(::btnNextPrevHandler)
+            toolbar.setNavigationOnClickListener(::btnNextPrevHandler)
 
             radioGroup.setOnCheckedChangeListener { _, _ ->
                 btnNext.isEnabled = true
@@ -139,9 +160,16 @@ class QuizFragment(private var currQuestionIdx: Int) : Fragment() {
     }
 
     companion object {
+        private const val CURR_QUESTION_IDX_KEY = "CURR_QUESTION_IDX"
+
         @JvmStatic
         fun newInstance(currQuestionIdx: Int): QuizFragment {
-            return QuizFragment(currQuestionIdx)
+            val args = bundleOf(
+                CURR_QUESTION_IDX_KEY to currQuestionIdx
+            )
+            val fragment = QuizFragment()
+            fragment.arguments = args
+            return fragment
         }
     }
 }

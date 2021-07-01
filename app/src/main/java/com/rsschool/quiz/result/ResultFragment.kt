@@ -1,4 +1,4 @@
-package com.rsschool.quiz
+package com.rsschool.quiz.result
 
 import android.content.Context
 import android.content.Intent
@@ -6,25 +6,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import com.rsschool.quiz.FragmentListener
+import com.rsschool.quiz.R
 import com.rsschool.quiz.databinding.FragmentFinishBinding
 
-class FinishFragment : Fragment() {
+class ResultFragment : Fragment() {
 
     private var _binding: FragmentFinishBinding? = null
-
     private val binding: FragmentFinishBinding
-        get() {
-            return _binding as FragmentFinishBinding
-        }
+        get() = requireNotNull(_binding)
 
-    private lateinit var fragmentListener: FragmentListener
+    private var _fragmentListener: FragmentListener? = null
+    private val fragmentListener: FragmentListener
+        get() = requireNotNull(_fragmentListener)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is FragmentListener) {
-            fragmentListener = context
+            _fragmentListener = context
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        _fragmentListener = null
     }
 
     override fun onDestroyView() {
@@ -75,7 +82,7 @@ class FinishFragment : Fragment() {
             }
 
             btnBack.setOnClickListener {
-                fragmentListener.openQuizFragment(0)
+                fragmentListener.openQuizFragment(-1)
             }
         }
     }
@@ -87,12 +94,13 @@ class FinishFragment : Fragment() {
             numQuestions: Int,
             numCorrect: Int,
             answers: Array<String>
-        ): FinishFragment {
-            val fragment = FinishFragment()
-            val args = Bundle()
-            args.putInt(NUM_QUESTIONS_KEY, numQuestions)
-            args.putInt(NUM_CORRECT_KEY, numCorrect)
-            args.putStringArray(ANSWERS_KEY, answers)
+        ): ResultFragment {
+            val fragment = ResultFragment()
+            val args = bundleOf(
+                NUM_QUESTIONS_KEY to numQuestions,
+                NUM_CORRECT_KEY to numCorrect,
+                ANSWERS_KEY to answers
+            )
             fragment.arguments = args
             return fragment
         }
